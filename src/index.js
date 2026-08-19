@@ -1996,6 +1996,39 @@ if (url.pathname === "/api/moments") {
 }
 
 
+if (
+
+  url.pathname ===
+
+  "/45a96b0d9be770ff42a33bdaebcdf1f8.txt"
+
+) {
+
+  return new Response(
+
+    "1f1814a6741b054eb58199d75cece7f7334da8f2",
+
+    {
+
+      status: 200,
+
+      headers: {
+
+        "content-type":
+
+          "text/plain; charset=utf-8",
+
+        "cache-control":
+
+          "no-store",
+
+      },
+
+    }
+
+  );
+
+}
 
     // =====================================================
     // Static assets
