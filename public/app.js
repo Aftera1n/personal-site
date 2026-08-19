@@ -9,9 +9,44 @@ function showPage(id){
   pages.forEach(p=>p.classList.toggle("active",p.id===id));
   history.replaceState(null,"","#"+id);
 }
+
+// Minimal, safe mobile menu handling (JS-only, no CSS/HTML changes)
+const sidebar = document.querySelector('.sidebar');
+const brand = document.querySelector('.brand');
+const menuToggle = document.querySelector('.menu-toggle');
+const _menuTrigger = menuToggle || brand; // prefer explicit toggle button if present
+let touchTriggered = false;
+
+if(_menuTrigger && sidebar){
+  // touchstart for reliable mobile response
+  _menuTrigger.addEventListener('touchstart', (e)=>{
+    if(window.innerWidth>800) return;
+    if(e.preventDefault) e.preventDefault();
+    touchTriggered = true;
+    sidebar.classList.toggle('open');
+  }, { passive: false });
+
+  // click as fallback
+  _menuTrigger.addEventListener('click', ()=>{
+    if(window.innerWidth>800) return;
+    if(touchTriggered){ touchTriggered = false; return; }
+    sidebar.classList.toggle('open');
+  });
+
+  // close when tapping outside (mobile only)
+  document.addEventListener('click', (e)=>{
+    if(window.innerWidth>800) return;
+    if(!sidebar.classList.contains('open')) return;
+    if(!sidebar.contains(e.target) && e.target !== _menuTrigger){
+      sidebar.classList.remove('open');
+    }
+  });
+}
+
 navs.forEach(n=>n.addEventListener("click",()=>{
   showPage(n.dataset.page);
-  if(window.innerWidth<=800) document.querySelector(".sidebar")?.blur();
+  // On mobile, ensure menu is closed after navigation
+  if(window.innerWidth<=800) sidebar?.classList.remove('open');
 }));
 const initial=location.hash.slice(1);
 if(initial && document.getElementById(initial)) showPage(initial);
@@ -53,5 +88,5 @@ form.addEventListener("submit",async e=>{
     form.reset();
   }catch(err){result.textContent=err.message||"发送失败，请稍后再试。"}
 });
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function escapeHtml(v){return String(v).replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 function escapeAttr(v){return escapeHtml(v)}
