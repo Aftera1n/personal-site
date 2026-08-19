@@ -9,9 +9,42 @@ function showPage(id){
   pages.forEach(p=>p.classList.toggle("active",p.id===id));
   history.replaceState(null,"","#"+id);
 }
+
+// Sidebar and menu toggle handling for mobile
+const sidebar = document.querySelector('.sidebar');
+const menuToggle = document.querySelector('.menu-toggle');
+let touchTriggered = false;
+if(menuToggle && sidebar){
+  // Click fallback (desktop and some mobile)
+  menuToggle.addEventListener('click', (e)=>{
+    if(touchTriggered){ touchTriggered=false; return }
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', (!expanded).toString());
+    sidebar.classList.toggle('open');
+  });
+  // touchstart for more reliable mobile response
+  menuToggle.addEventListener('touchstart', (e)=>{
+    e.preventDefault && e.preventDefault();
+    touchTriggered = true;
+    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', (!expanded).toString());
+    sidebar.classList.toggle('open');
+  }, { passive:false });
+
+  // Close menu when tapping outside (mobile)
+  document.addEventListener('click', (e)=>{
+    if(window.innerWidth<=800 && sidebar.classList.contains('open')){
+      if(!sidebar.contains(e.target) && e.target !== menuToggle){
+        sidebar.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded','false');
+      }
+    }
+  });
+}
+
 navs.forEach(n=>n.addEventListener("click",()=>{
   showPage(n.dataset.page);
-  if(window.innerWidth<=800) document.querySelector(".sidebar")?.blur();
+  if(window.innerWidth<=800) sidebar?.classList.remove('open');
 }));
 const initial=location.hash.slice(1);
 if(initial && document.getElementById(initial)) showPage(initial);
@@ -53,5 +86,5 @@ form.addEventListener("submit",async e=>{
     form.reset();
   }catch(err){result.textContent=err.message||"发送失败，请稍后再试。"}
 });
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function escapeHtml(v){return String(v).replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 function escapeAttr(v){return escapeHtml(v)}
