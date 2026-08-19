@@ -1774,48 +1774,7 @@ ${
       // Cloudinary Upload
       // -----------------------------------------------\
       
-      // =================================================
-// Cloudinary 配置测试（临时）
-// =================================================
 
-if (
-  url.pathname ===
-    "/api/admin/cloudinary-test" &&
-  request.method ===
-    "GET"
-) {
-  return json({
-    cloudNameConfigured:
-      !!env.CLOUDINARY_CLOUD_NAME,
-
-    apiKeyConfigured:
-      !!env.CLOUDINARY_API_KEY,
-
-    apiSecretConfigured:
-      !!env.CLOUDINARY_API_SECRET,
-
-    cloudNameLength:
-      env.CLOUDINARY_CLOUD_NAME
-        ? String(
-            env.CLOUDINARY_CLOUD_NAME
-          ).length
-        : 0,
-
-    apiKeyLength:
-      env.CLOUDINARY_API_KEY
-        ? String(
-            env.CLOUDINARY_API_KEY
-          ).length
-        : 0,
-
-    apiSecretLength:
-      env.CLOUDINARY_API_SECRET
-        ? String(
-            env.CLOUDINARY_API_SECRET
-          ).length
-        : 0,
-  });
-}
 
       if (
         url.pathname ===
