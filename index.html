@@ -6,9 +6,6 @@
 <title>Afterain · 雨后</title>
 <meta name="description" content="Afterain 的个人角落 —— 介绍、照片时间链、匿名信与此时状态。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,20 +13,20 @@
 <canvas id="rain-canvas"></canvas>
 <div class="grain"></div>
 
-<!-- side scroll-spy nav -->
-<nav class="dot-nav" aria-label="章节导航">
-  <a href="#intro" class="dot-link active" data-target="intro"><span class="dot"></span><span class="dot-label">介绍</span></a>
-  <a href="#timeline" class="dot-link" data-target="timeline"><span class="dot"></span><span class="dot-label">照片动态</span></a>
-  <a href="#letter" class="dot-link" data-target="letter"><span class="dot"></span><span class="dot-label">匿名信</span></a>
-  <a href="#status" class="dot-link" data-target="status"><span class="dot"></span><span class="dot-label">此时状态</span></a>
-</nav>
+<!-- mobile top bar -->
+<div class="mobile-bar">
+  <button id="sidebar-toggle" class="sidebar-toggle" aria-label="打开菜单" aria-expanded="false" aria-controls="sidebar">
+    <span></span><span></span><span></span>
+  </button>
+  <span class="mobile-bar-title">Afterain</span>
+</div>
+<div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
 
-<main>
+<div class="layout">
 
-  <!-- ============ 01 介绍 ============ -->
-  <section id="intro" class="section intro-section">
-    <div class="mist-layer"></div>
-    <div class="section-inner">
+  <!-- ============ 侧边栏：头像 + 导航 ============ -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-top">
       <div class="avatar-wrap">
         <div class="avatar-ring">
           <img id="avatar-img" src="" alt="Afterain 的头像" class="avatar-img" hidden>
@@ -37,91 +34,120 @@
         </div>
         <div class="ripple"></div>
       </div>
+      <p id="sidebar-name" class="sidebar-name">Afterain</p>
+      <p class="sidebar-name-cn">雨 后</p>
+    </div>
 
-      <p class="eyebrow">欢迎来到</p>
-      <h1 class="site-title">Afterain<span class="cn-title">雨后</span></h1>
-      <p id="intro-bio" class="intro-bio">
-        雨停了，空气还留着水汽。这里是我存放介绍、影像、悄悄话与此刻状态的地方。
-      </p>
-
-      <div id="intro-links" class="intro-links"><!-- 由 script.js / config 注入社交链接 --></div>
-
-      <a href="#timeline" class="scroll-hint" aria-label="向下滚动查看照片动态">
-        <span>顺流而下</span>
-        <svg width="14" height="22" viewBox="0 0 14 22" fill="none"><path d="M7 1 L7 19 M1 13 L7 19 L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <nav class="sidebar-nav" aria-label="章节导航">
+      <a href="#intro" class="nav-link active" data-target="intro">
+        <span class="nav-dot"></span><span>介绍</span>
       </a>
-    </div>
-  </section>
+      <a href="#timeline" class="nav-link" data-target="timeline">
+        <span class="nav-dot"></span><span>照片动态</span>
+      </a>
+      <a href="#letter" class="nav-link" data-target="letter">
+        <span class="nav-dot"></span><span>匿名信</span>
+      </a>
+      <a href="#status" class="nav-link" data-target="status">
+        <span class="nav-dot"></span><span>此时状态</span>
+      </a>
+    </nav>
 
-  <!-- ============ 02 照片动态 / 时间链 ============ -->
-  <section id="timeline" class="section timeline-section">
-    <div class="section-header">
-      <p class="eyebrow">02 · 时间的水痕</p>
-      <h2 class="section-title">照片动态</h2>
-      <p class="section-sub">每一张照片都是雨水滑落时留下的一道痕迹，顺着它们，回到当时。</p>
-    </div>
+    <div id="sidebar-links" class="sidebar-links"><!-- 由 script.js / config 注入社交链接 --></div>
 
-    <div id="timeline-list" class="timeline-list" aria-live="polite">
-      <div class="timeline-loading">正在打捞记忆…</div>
-    </div>
-  </section>
+    <p class="sidebar-footer">© <span id="year"></span> Afterain</p>
+  </aside>
 
-  <!-- ============ 03 匿名信 ============ -->
-  <section id="letter" class="section letter-section">
-    <div class="mist-layer mist-layer--reverse"></div>
-    <div class="section-inner letter-inner">
-      <p class="eyebrow">03 · 说给雨听</p>
-      <h2 class="section-title">匿名信</h2>
-      <p class="section-sub">不需要署名。写下想说却难以当面说的话，它会安静地落进我的邮箱，只有我能看见。</p>
+  <!-- ============ 主内容 ============ -->
+  <main class="content">
 
-      <form id="letter-form" class="letter-form" novalidate>
-        <label class="visually-hidden" for="letter-subject">主题（可选）</label>
-        <input id="letter-subject" name="subject" type="text" maxlength="80" placeholder="主题（可选）" class="letter-subject-input" autocomplete="off">
+    <!-- 01 介绍 -->
+    <section id="intro" class="section intro-section">
+      <div class="mist-layer"></div>
+      <div class="section-inner">
+        <p class="eyebrow">欢迎来到</p>
+        <h1 class="site-title">Afterain<span class="cn-title">雨后</span></h1>
+        <p id="intro-bio" class="intro-bio">
+          雨停了，空气还留着水汽。这里是我存放介绍、影像、悄悄话与此刻状态的地方。
+        </p>
 
-        <label class="visually-hidden" for="letter-message">信件内容</label>
-        <textarea id="letter-message" name="message" required minlength="1" maxlength="4000" placeholder="写点什么……" class="letter-textarea"></textarea>
+        <a href="#timeline" class="scroll-hint" aria-label="向下滚动查看照片动态">
+          <span>顺流而下</span>
+          <svg width="14" height="22" viewBox="0 0 14 22" fill="none"><path d="M7 1 L7 19 M1 13 L7 19 L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </section>
 
-        <!-- honeypot：正常用户看不到，机器人常会填写 -->
-        <div class="hp-field" aria-hidden="true">
-          <label for="letter-website">网站</label>
-          <input id="letter-website" name="website" type="text" tabindex="-1" autocomplete="off">
-        </div>
+    <!-- 02 照片动态 / 时间链 -->
+    <section id="timeline" class="section timeline-section">
+      <div class="section-header">
+        <p class="eyebrow">02 · 时间的水痕</p>
+        <h2 class="section-title">照片动态</h2>
+        <p class="section-sub">每一张照片都是雨水滑落时留下的一道痕迹，顺着它们，回到当时。</p>
+      </div>
 
-        <div class="letter-footer">
-          <span id="letter-count" class="letter-count">0 / 4000</span>
-          <button type="submit" id="letter-submit" class="letter-submit">
-            <span class="btn-label">寄出</span>
-            <span class="btn-drop"></span>
-          </button>
-        </div>
+      <div id="timeline-list" class="timeline-list" aria-live="polite">
+        <div class="timeline-loading">正在打捞记忆…</div>
+      </div>
+    </section>
 
-        <p id="letter-status" class="letter-status" role="status" aria-live="polite"></p>
-      </form>
-    </div>
-  </section>
+    <!-- 03 匿名信 -->
+    <section id="letter" class="section letter-section">
+      <div class="mist-layer mist-layer--reverse"></div>
+      <div class="section-inner letter-inner">
+        <p class="eyebrow">03 · 说给雨听</p>
+        <h2 class="section-title">匿名信</h2>
+        <p class="section-sub">不需要署名。写下想说却难以当面说的话，它会安静地落进我的邮箱，只有我能看见。</p>
 
-  <!-- ============ 04 此时状态 ============ -->
-  <section id="status" class="section status-section">
-    <div class="section-inner status-inner">
-      <p class="eyebrow">04 · 现在</p>
-      <h2 class="section-title">此时状态</h2>
+        <form id="letter-form" class="letter-form" novalidate>
+          <label class="visually-hidden" for="letter-subject">主题（可选）</label>
+          <input id="letter-subject" name="subject" type="text" maxlength="80" placeholder="主题（可选）" class="letter-subject-input" autocomplete="off">
 
-      <div id="status-card" class="status-card">
-        <div class="status-pulse"><span class="pulse-dot"></span></div>
-        <div class="status-body">
-          <p id="status-text" class="status-text">正在加载…</p>
-          <p id="status-detail" class="status-detail"></p>
-          <p id="status-updated" class="status-updated"></p>
+          <label class="visually-hidden" for="letter-message">信件内容</label>
+          <textarea id="letter-message" name="message" required minlength="1" maxlength="4000" placeholder="写点什么……" class="letter-textarea"></textarea>
+
+          <!-- honeypot：正常用户看不到，机器人常会填写 -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="letter-website">网站</label>
+            <input id="letter-website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="letter-footer">
+            <span id="letter-count" class="letter-count">0 / 4000</span>
+            <button type="submit" id="letter-submit" class="letter-submit">
+              <span class="btn-label">寄出</span>
+              <span class="btn-drop"></span>
+            </button>
+          </div>
+
+          <p id="letter-status" class="letter-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- 04 此时状态 -->
+    <section id="status" class="section status-section">
+      <div class="section-inner status-inner">
+        <p class="eyebrow">04 · 现在</p>
+        <h2 class="section-title">此时状态</h2>
+
+        <div id="status-card" class="status-card">
+          <div class="status-pulse"><span class="pulse-dot"></span></div>
+          <div class="status-body">
+            <p id="status-text" class="status-text">正在加载…</p>
+            <p id="status-detail" class="status-detail"></p>
+            <p id="status-updated" class="status-updated"></p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <footer class="site-footer">
-      <p>© <span id="year"></span> Afterain · 雨停了，但故事还在下</p>
-    </footer>
-  </section>
+      <footer class="site-footer">
+        <p>雨停了，但故事还在下</p>
+      </footer>
+    </section>
 
-</main>
+  </main>
+</div>
 
 <!-- Lightbox -->
 <div id="lightbox" class="lightbox" hidden>

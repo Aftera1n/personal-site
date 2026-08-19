@@ -59,10 +59,10 @@
   }
 
   /* ---------------------------------------------------------
-     Scroll-spy dot nav
+     Scroll-spy sidebar nav
   --------------------------------------------------------- */
   function initScrollSpy() {
-    var links = Array.prototype.slice.call(document.querySelectorAll(".dot-link"));
+    var links = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
     var sections = links
       .map(function (l) { return document.getElementById(l.dataset.target); })
       .filter(Boolean);
@@ -84,6 +84,49 @@
     );
 
     sections.forEach(function (s) { observer.observe(s); });
+
+    // 移动端：点导航链接后自动收起侧边栏
+    links.forEach(function (l) {
+      l.addEventListener("click", function () { closeSidebar(); });
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Mobile sidebar drawer
+  --------------------------------------------------------- */
+  function openSidebar() {
+    var sidebar = document.getElementById("sidebar");
+    var backdrop = document.getElementById("sidebar-backdrop");
+    var toggle = document.getElementById("sidebar-toggle");
+    sidebar.classList.add("open");
+    backdrop.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSidebar() {
+    var sidebar = document.getElementById("sidebar");
+    var backdrop = document.getElementById("sidebar-backdrop");
+    var toggle = document.getElementById("sidebar-toggle");
+    sidebar.classList.remove("open");
+    backdrop.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
+
+  function initSidebarToggle() {
+    var toggle = document.getElementById("sidebar-toggle");
+    var backdrop = document.getElementById("sidebar-backdrop");
+    if (!toggle) return;
+
+    toggle.addEventListener("click", function () {
+      var isOpen = document.getElementById("sidebar").classList.contains("open");
+      if (isOpen) closeSidebar(); else openSidebar();
+    });
+    backdrop.addEventListener("click", closeSidebar);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeSidebar();
+    });
   }
 
   /* ---------------------------------------------------------
@@ -109,7 +152,10 @@
     var bioEl = document.getElementById("intro-bio");
     if (CONFIG.bio) bioEl.textContent = CONFIG.bio;
 
-    var linksEl = document.getElementById("intro-links");
+    var nameEl = document.getElementById("sidebar-name");
+    if (CONFIG.name && nameEl) nameEl.textContent = CONFIG.name;
+
+    var linksEl = document.getElementById("sidebar-links");
     if (Array.isArray(CONFIG.links) && CONFIG.links.length) {
       CONFIG.links.forEach(function (l) {
         var a = document.createElement("a");
@@ -351,6 +397,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("year").textContent = new Date().getFullYear();
     initRain();
+    initSidebarToggle();
     initScrollSpy();
     initIntro();
     loadTimeline();
