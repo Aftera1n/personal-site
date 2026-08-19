@@ -70,26 +70,22 @@ function showPage(id) {
   );
 }
 
-
 /* =====================================================
    Mobile Menu
 ===================================================== */
+
+const sidebar = document.querySelector(".sidebar");
+const brand = document.querySelector(".brand");
+const nav = sidebar ? sidebar.querySelector("nav") : null;
+
+let menuOpen = false;
 
 function isMobile() {
   return window.innerWidth <= 800;
 }
 
-let menuOpen = false;
-
-
-/* -----------------------------------------------------
-   Open
------------------------------------------------------ */
-
 function openMobileMenu() {
-  if (!nav || !isMobile()) {
-    return;
-  }
+  if (!nav || !isMobile()) return;
 
   menuOpen = true;
 
@@ -99,15 +95,8 @@ function openMobileMenu() {
   nav.style.padding = "5px 0 2px";
 }
 
-
-/* -----------------------------------------------------
-   Close
------------------------------------------------------ */
-
 function closeMobileMenu() {
-  if (!nav) {
-    return;
-  }
+  if (!nav) return;
 
   menuOpen = false;
 
@@ -117,7 +106,6 @@ function closeMobileMenu() {
     nav.style.pointerEvents = "none";
     nav.style.padding = "0";
   } else {
-    // 桌面端完全交还给 CSS
     nav.style.maxHeight = "";
     nav.style.opacity = "";
     nav.style.pointerEvents = "";
@@ -125,15 +113,8 @@ function closeMobileMenu() {
   }
 }
 
-
-/* -----------------------------------------------------
-   Toggle
------------------------------------------------------ */
-
 function toggleMobileMenu() {
-  if (!isMobile()) {
-    return;
-  }
+  if (!isMobile()) return;
 
   if (menuOpen) {
     closeMobileMenu();
@@ -143,71 +124,93 @@ function toggleMobileMenu() {
 }
 
 
-/* =====================================================
-   Mobile Brand Button
-===================================================== */
+/* -----------------------------------------------------
+   Brand
+   点击原来的 Afterain 品牌区域打开菜单
+----------------------------------------------------- */
 
 if (brand && nav) {
-  brand.setAttribute("role", "button");
-  brand.setAttribute("tabindex", "0");
-  brand.setAttribute(
-    "aria-label",
-    "打开或关闭菜单"
-  );
 
-  /*
-   * click 对 iPhone / iPad Safari 是可靠的。
-   * 不再混用 touchstart，避免一次点击触发两次。
-   */
-  brand.addEventListener("click", (event) => {
-    if (!isMobile()) {
-      return;
-    }
+  brand.style.cursor = "pointer";
+
+  brand.addEventListener("click", function (event) {
+
+    if (!isMobile()) return;
 
     event.preventDefault();
     event.stopPropagation();
 
     toggleMobileMenu();
+
   });
 
-  /*
-   * 键盘 / 辅助功能支持
-   */
-  brand.addEventListener("keydown", (event) => {
-    if (!isMobile()) {
-      return;
-    }
-
-    if (
-      event.key === "Enter" ||
-      event.key === " "
-    ) {
-      event.preventDefault();
-      toggleMobileMenu();
-    }
-  });
 }
 
 
-/* =====================================================
-   Navigation Buttons
-===================================================== */
+/* -----------------------------------------------------
+   Navigation
+----------------------------------------------------- */
 
-navs.forEach((item) => {
-  item.addEventListener("click", (event) => {
+navs.forEach(function (item) {
+
+  item.addEventListener("click", function (event) {
+
     event.stopPropagation();
 
-    const page = item.dataset.page;
+    showPage(item.dataset.page);
 
-    if (page) {
-      showPage(page);
-    }
-
-    // 手机端切换页面后关闭菜单
     if (isMobile()) {
       closeMobileMenu();
     }
+
   });
+
+});
+
+
+/* -----------------------------------------------------
+   点击外部关闭
+----------------------------------------------------- */
+
+document.addEventListener("click", function (event) {
+
+  if (!isMobile()) return;
+
+  if (!menuOpen) return;
+
+  if (
+    sidebar &&
+    !sidebar.contains(event.target)
+  ) {
+    closeMobileMenu();
+  }
+
+});
+
+
+/* -----------------------------------------------------
+   屏幕尺寸变化
+----------------------------------------------------- */
+
+window.addEventListener("resize", function () {
+
+  if (!isMobile()) {
+
+    menuOpen = false;
+
+    if (nav) {
+      nav.style.maxHeight = "";
+      nav.style.opacity = "";
+      nav.style.pointerEvents = "";
+      nav.style.padding = "";
+    }
+
+  } else if (!menuOpen) {
+
+    closeMobileMenu();
+
+  }
+
 });
 
 
