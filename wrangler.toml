@@ -6,10 +6,19 @@ compatibility_date = "2026-08-05"
 directory = "./public"
 
 [vars]
-# 收信地址和发件地址建议在 Cloudflare Dashboard 的 Variables 中配置。
 # TO_EMAIL = "your@email.com"
 # FROM_EMAIL = "hello@yourdomain.com"
 
 [[send_email]]
 name = "EMAIL"
 remote = true
+
+# 匿名信限流
+[[kv_namespaces]]
+binding = "LETTER_RATE_LIMIT"
+id = "58fd3397a30f4929a4c760b454c09a4e"
+
+# 网站内容
+[[kv_namespaces]]
+binding = "SITE_KV"
+id = "92fd195d8c064c56851659ee6414404f"
