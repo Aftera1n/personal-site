@@ -34,7 +34,7 @@ function json(data, status = 200, extraHeaders = {}) {
       "access-control-allow-origin": ALLOWED_ORIGIN,
       "access-control-allow-methods":
         "GET, POST, PUT, DELETE, OPTIONS",
-      "access-control-allow-headers":ƒ
+      "access-control-allow-headers":
         "content-type",
       ...extraHeaders,
     },
