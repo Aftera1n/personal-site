@@ -1,36 +1,67 @@
 const cfg = window.SITE_CONFIG || {};
 
-// =====================================================
-// Avatar
-// =====================================================
+/* =====================================================
+   Avatar
+===================================================== */
 
 const avatar = document.querySelector("#avatar");
 
-if (avatar && cfg.avatarUrl) {
-  avatar.src = cfg.avatarUrl;
+if (avatar) {
+  // HTML 中原本的头像地址，例如：
+  // /assets/avatar.jpeg
+  const originalAvatar = avatar.getAttribute("src");
+
+  // 防止 cfg.avatarUrl 覆盖正确的 HTML 地址后无法恢复
+  let triedConfigAvatar = false;
+
+  if (cfg.avatarUrl) {
+    triedConfigAvatar = true;
+    avatar.src = cfg.avatarUrl;
+  }
+
+  avatar.addEventListener("error", () => {
+    // config.js 头像加载失败
+    // 自动恢复 HTML 中原来的头像
+    if (triedConfigAvatar && originalAvatar) {
+      triedConfigAvatar = false;
+      avatar.src = originalAvatar;
+    }
+  });
 }
 
-// =====================================================
-// Navigation
-// =====================================================
+
+/* =====================================================
+   Navigation
+===================================================== */
 
 const navs = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
 
-function showPage(id) {
-  navs.forEach((n) =>
-    n.classList.toggle(
-      "active",
-      n.dataset.page === id
-    )
-  );
+const sidebar = document.querySelector(".sidebar");
+const brand = document.querySelector(".brand");
+const nav = sidebar
+  ? sidebar.querySelector("nav")
+  : null;
 
-  pages.forEach((p) =>
-    p.classList.toggle(
+
+/* =====================================================
+   Page Switching
+===================================================== */
+
+function showPage(id) {
+  navs.forEach((item) => {
+    item.classList.toggle(
       "active",
-      p.id === id
-    )
-  );
+      item.dataset.page === id
+    );
+  });
+
+  pages.forEach((page) => {
+    page.classList.toggle(
+      "active",
+      page.id === id
+    );
+  });
 
   history.replaceState(
     null,
@@ -39,216 +70,257 @@ function showPage(id) {
   );
 }
 
-// =====================================================
-// Mobile menu
-// =====================================================
 
-const sidebar =
-  document.querySelector(".sidebar");
+/* =====================================================
+   Mobile Menu
+===================================================== */
 
-const brand =
-  document.querySelector(".brand");
-
-const menuToggle =
-  document.querySelector(".menu-toggle");
-
-const _menuTrigger =
-  menuToggle || brand;
-
-let touchTriggered = false;
-
-if (_menuTrigger && sidebar) {
-
-  _menuTrigger.addEventListener(
-    "touchstart",
-    (e) => {
-      if (window.innerWidth > 800) {
-        return;
-      }
-
-      e.preventDefault();
-
-      touchTriggered = true;
-
-      sidebar.classList.toggle("open");
-    },
-    {
-      passive: false
-    }
-  );
-
-  _menuTrigger.addEventListener(
-    "click",
-    () => {
-      if (window.innerWidth > 800) {
-        return;
-      }
-
-      if (touchTriggered) {
-        touchTriggered = false;
-        return;
-      }
-
-      sidebar.classList.toggle("open");
-    }
-  );
-
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (window.innerWidth > 800) {
-        return;
-      }
-
-      if (!sidebar.classList.contains("open")) {
-        return;
-      }
-
-      if (
-        !sidebar.contains(e.target) &&
-        e.target !== _menuTrigger
-      ) {
-        sidebar.classList.remove("open");
-      }
-    }
-  );
+function isMobile() {
+  return window.innerWidth <= 800;
 }
 
-navs.forEach((n) => {
-  n.addEventListener("click", () => {
+let menuOpen = false;
 
-    showPage(n.dataset.page);
+
+/* -----------------------------------------------------
+   Open
+----------------------------------------------------- */
+
+function openMobileMenu() {
+  if (!nav || !isMobile()) {
+    return;
+  }
+
+  menuOpen = true;
+
+  nav.style.maxHeight = "70px";
+  nav.style.opacity = "1";
+  nav.style.pointerEvents = "auto";
+  nav.style.padding = "5px 0 2px";
+}
+
+
+/* -----------------------------------------------------
+   Close
+----------------------------------------------------- */
+
+function closeMobileMenu() {
+  if (!nav) {
+    return;
+  }
+
+  menuOpen = false;
+
+  if (isMobile()) {
+    nav.style.maxHeight = "0";
+    nav.style.opacity = "0";
+    nav.style.pointerEvents = "none";
+    nav.style.padding = "0";
+  } else {
+    // 桌面端完全交还给 CSS
+    nav.style.maxHeight = "";
+    nav.style.opacity = "";
+    nav.style.pointerEvents = "";
+    nav.style.padding = "";
+  }
+}
+
+
+/* -----------------------------------------------------
+   Toggle
+----------------------------------------------------- */
+
+function toggleMobileMenu() {
+  if (!isMobile()) {
+    return;
+  }
+
+  if (menuOpen) {
+    closeMobileMenu();
+  } else {
+    openMobileMenu();
+  }
+}
+
+
+/* =====================================================
+   Mobile Brand Button
+===================================================== */
+
+if (brand && nav) {
+  brand.setAttribute("role", "button");
+  brand.setAttribute("tabindex", "0");
+  brand.setAttribute(
+    "aria-label",
+    "打开或关闭菜单"
+  );
+
+  /*
+   * click 对 iPhone / iPad Safari 是可靠的。
+   * 不再混用 touchstart，避免一次点击触发两次。
+   */
+  brand.addEventListener("click", (event) => {
+    if (!isMobile()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    toggleMobileMenu();
+  });
+
+  /*
+   * 键盘 / 辅助功能支持
+   */
+  brand.addEventListener("keydown", (event) => {
+    if (!isMobile()) {
+      return;
+    }
 
     if (
-      window.innerWidth <= 800 &&
-      sidebar
+      event.key === "Enter" ||
+      event.key === " "
     ) {
-      sidebar.classList.remove("open");
+      event.preventDefault();
+      toggleMobileMenu();
+    }
+  });
+}
+
+
+/* =====================================================
+   Navigation Buttons
+===================================================== */
+
+navs.forEach((item) => {
+  item.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    const page = item.dataset.page;
+
+    if (page) {
+      showPage(page);
+    }
+
+    // 手机端切换页面后关闭菜单
+    if (isMobile()) {
+      closeMobileMenu();
     }
   });
 });
 
-const initial =
+
+/* =====================================================
+   Click Outside
+===================================================== */
+
+document.addEventListener("click", (event) => {
+  if (!isMobile()) {
+    return;
+  }
+
+  if (!menuOpen) {
+    return;
+  }
+
+  if (
+    sidebar &&
+    !sidebar.contains(event.target)
+  ) {
+    closeMobileMenu();
+  }
+});
+
+
+/* =====================================================
+   Resize
+===================================================== */
+
+window.addEventListener("resize", () => {
+  if (!isMobile()) {
+    // 回到桌面端
+    menuOpen = false;
+
+    if (nav) {
+      nav.style.maxHeight = "";
+      nav.style.opacity = "";
+      nav.style.pointerEvents = "";
+      nav.style.padding = "";
+    }
+
+    return;
+  }
+
+  // 手机端保持当前菜单状态
+  if (!menuOpen) {
+    closeMobileMenu();
+  }
+});
+
+
+/* =====================================================
+   Initial Page
+===================================================== */
+
+const initialPage =
   location.hash.slice(1);
 
 if (
-  initial &&
-  document.getElementById(initial)
+  initialPage &&
+  document.getElementById(initialPage)
 ) {
-  showPage(initial);
+  showPage(initialPage);
+} else {
+  showPage("home");
 }
 
-// =====================================================
-// HTML escaping
-// =====================================================
 
-function escapeHtml(v) {
-  return String(v).replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      })[c]
-  );
-}
-
-function escapeAttr(v) {
-  return escapeHtml(v);
-}
-
-// =====================================================
-// Moments
-// =====================================================
+/* =====================================================
+   Moments
+===================================================== */
 
 const timeline =
   document.querySelector("#timeline");
 
-async function loadMoments() {
+const moments =
+  [...(cfg.moments || [])].sort(
+    (a, b) =>
+      String(b.date || "").localeCompare(
+        String(a.date || "")
+      )
+  );
 
-  if (!timeline) {
-    return;
-  }
-
-  try {
-
-    const response =
-      await fetch(
-        "/api/moments",
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-        "读取动态失败"
-      );
-    }
-
-    const moments =
-      Array.isArray(data.moments)
-        ? data.moments
-        : [];
-
-    moments.sort(
-      (a, b) =>
-        String(b.date || "")
-          .localeCompare(
-            String(a.date || "")
-          ) ||
-        String(b.createdAt || "")
-          .localeCompare(
-            String(a.createdAt || "")
-          )
-    );
-
-    if (!moments.length) {
-
-      timeline.innerHTML = `
-        <div class="glass mini-card">
-          <h3>还没有动态</h3>
-          <p>之后发布的内容会显示在这里。</p>
-        </div>
-      `;
-
-      return;
-    }
-
+if (timeline) {
+  if (!moments.length) {
+    timeline.innerHTML = `
+      <div class="glass mini-card">
+        <h3>还没有动态</h3>
+        <p>暂时还没有值得记录的片段。</p>
+      </div>
+    `;
+  } else {
     timeline.innerHTML =
       moments
         .map(
-          (m) => `
+          (moment) => `
             <article class="moment">
 
               <div class="moment-date">
-                ${escapeHtml(
-                  m.date || ""
-                )}
+                ${escapeHtml(moment.date || "")}
               </div>
 
               <div class="moment-card glass">
 
                 ${
-                  m.image
+                  moment.image
                     ? `
                       <img
                         class="moment-img"
                         loading="lazy"
-                        src="${escapeAttr(
-                          m.image
-                        )}"
+                        src="${escapeAttr(moment.image)}"
                         alt="${escapeAttr(
-                          m.title ||
-                          "照片"
+                          moment.title || "照片"
                         )}"
                       >
                     `
@@ -259,163 +331,85 @@ async function loadMoments() {
 
                   <h3 class="moment-title">
                     ${escapeHtml(
-                      m.title ||
-                      "未命名"
+                      moment.title || "未命名"
                     )}
                   </h3>
 
                   <p class="moment-desc">
                     ${escapeHtml(
-                      m.description ||
-                      ""
+                      moment.description || ""
                     )}
                   </p>
 
                 </div>
-
               </div>
 
             </article>
           `
         )
         .join("");
-
-  } catch (error) {
-
-    console.error(
-      "Load moments error:",
-      error
-    );
-
-    timeline.innerHTML = `
-      <div class="glass mini-card">
-        <h3>动态暂时无法加载</h3>
-        <p>请稍后刷新页面再试。</p>
-      </div>
-    `;
   }
 }
 
-// =====================================================
-// Status
-// =====================================================
 
-async function loadStatus() {
+/* =====================================================
+   Status
+===================================================== */
 
-  const title =
-    document.querySelector(
-      "#status-title"
-    );
+const statusTitle =
+  document.querySelector("#status-title");
 
-  const detail =
-    document.querySelector(
-      "#status-detail"
-    );
+const statusDetail =
+  document.querySelector("#status-detail");
 
-  const time =
-    document.querySelector(
-      "#status-time"
-    );
+const statusTime =
+  document.querySelector("#status-time");
 
-  if (!title || !detail || !time) {
-    return;
-  }
+const status =
+  cfg.status || {};
 
-  try {
-
-    const response =
-      await fetch(
-        "/api/status",
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-        "读取状态失败"
-      );
-    }
-
-    const status =
-      data.status;
-
-    if (!status) {
-
-      title.textContent =
-        "暂时没有状态";
-
-      detail.textContent =
-        "还没有设置当前状态。";
-
-      time.textContent = "";
-
-      return;
-    }
-
-    title.textContent =
-      status.title || "";
-
-    detail.textContent =
-      status.detail || "";
-
-    time.textContent =
-      status.updatedAt
-        ? `LAST UPDATED · ${status.updatedAt}`
-        : "";
-
-  } catch (error) {
-
-    console.error(
-      "Load status error:",
-      error
-    );
-
-    title.textContent =
-      "状态暂时无法加载";
-
-    detail.textContent =
-      "请稍后再试。";
-
-    time.textContent = "";
-  }
+if (statusTitle) {
+  statusTitle.textContent =
+    status.title ||
+    "正在加载……";
 }
 
-// =====================================================
-// Anonymous letter
-// =====================================================
+if (statusDetail) {
+  statusDetail.textContent =
+    status.detail ||
+    "稍等一下。";
+}
+
+if (statusTime) {
+  statusTime.textContent =
+    status.updatedAt
+      ? `LAST UPDATED · ${status.updatedAt}`
+      : "";
+}
+
+
+/* =====================================================
+   Anonymous Letter
+===================================================== */
 
 const form =
-  document.querySelector(
-    "#letter-form"
-  );
+  document.querySelector("#letter-form");
 
 const result =
-  document.querySelector(
-    "#form-result"
-  );
+  document.querySelector("#form-result");
 
-if (form && result) {
-
+if (form) {
   form.addEventListener(
     "submit",
-    async (e) => {
+    async (event) => {
+      event.preventDefault();
 
-      e.preventDefault();
-
-      const website =
-        document.querySelector(
-          "#website"
-        );
+      const honeypot =
+        document.querySelector("#website");
 
       if (
-        website &&
-        website.value
+        honeypot &&
+        honeypot.value
       ) {
         return;
       }
@@ -423,81 +417,93 @@ if (form && result) {
       const message =
         document
           .querySelector("#message")
-          .value
-          .trim();
+          ?.value
+          .trim() || "";
 
       const replyTo =
         document
           .querySelector("#replyTo")
-          .value
-          .trim();
+          ?.value
+          .trim() || "";
 
       if (!message) {
         return;
       }
 
-      result.textContent =
-        "正在发送……";
+      if (result) {
+        result.textContent =
+          "正在发送……";
+      }
 
       try {
-
-        const r =
+        const response =
           await fetch(
             cfg.letterApi ||
-            "/api/letter",
+              "/api/letter",
             {
               method: "POST",
 
               headers: {
                 "content-type":
-                  "application/json"
+                  "application/json",
               },
 
-              body:
-                JSON.stringify({
-                  message,
-                  replyTo
-                })
+              body: JSON.stringify({
+                message,
+                replyTo,
+              }),
             }
           );
 
         const data =
-          await r
+          await response
             .json()
-            .catch(
-              () => ({})
-            );
+            .catch(() => ({}));
 
-        if (!r.ok) {
+        if (!response.ok) {
           throw new Error(
             data.error ||
-            "发送失败"
+              "发送失败"
           );
         }
 
-        result.textContent =
-          "已送达。谢谢你留下这封信。";
+        if (result) {
+          result.textContent =
+            "已送达。谢谢你留下这封信。";
+        }
 
         form.reset();
 
-      } catch (err) {
-
-        console.error(
-          "Letter error:",
-          err
-        );
-
-        result.textContent =
-          err.message ||
-          "发送失败，请稍后再试。";
+      } catch (error) {
+        if (result) {
+          result.textContent =
+            error.message ||
+            "发送失败，请稍后再试。";
+        }
       }
     }
   );
 }
 
-// =====================================================
-// Load remote content
-// =====================================================
 
-loadMoments();
-loadStatus();
+/* =====================================================
+   Escape Helpers
+===================================================== */
+
+function escapeHtml(value) {
+  return String(value).replace(
+    /[&<>"']/g,
+    (char) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      })[char]
+  );
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
+}
