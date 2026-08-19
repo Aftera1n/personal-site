@@ -26,7 +26,6 @@ const MOMENTS_KEY = "moments";
 // =====================================================
 // Response helpers
 // =====================================================
-
 function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -432,6 +431,9 @@ async function saveStatus(
         String(status.detail || "")
           .trim()
           .slice(0, 300),
+
+      updatedAt:
+        new Date().toISOString(),
     })
   );
 }
@@ -1873,9 +1875,13 @@ ${
     }
     
     
-    // =====================================================
-// 公开网站状态
 // =====================================================
+// 公开网站 API
+// =====================================================
+
+// -----------------------------------------------
+// Public Status
+// -----------------------------------------------
 
 if (url.pathname === "/api/status") {
 
@@ -1905,25 +1911,19 @@ if (url.pathname === "/api/status") {
 
     const stored =
       await env.AFTERAIN_SITE.get(
-        "status",
+        STATUS_KEY,
         "json"
       );
 
-    if (!stored) {
-      return json({
-        status: null,
-      });
-    }
-
     return json({
-      status: stored,
+      status: stored || null,
     });
 
-  } catch (e) {
+  } catch (error) {
 
     console.error(
-      "Status API error:",
-      e
+      "Public status API error:",
+      error
     );
 
     return json(
@@ -1932,7 +1932,65 @@ if (url.pathname === "/api/status") {
       },
       500
     );
+  }
+}
 
+
+// -----------------------------------------------
+// Public Moments
+// -----------------------------------------------
+
+if (url.pathname === "/api/moments") {
+
+  if (request.method !== "GET") {
+    return json(
+      {
+        error: "Method Not Allowed",
+      },
+      405
+    );
+  }
+
+  try {
+
+    if (!env.AFTERAIN_SITE) {
+      console.error(
+        "AFTERAIN_SITE KV binding missing"
+      );
+
+      return json(
+        {
+          error: "网站内容服务未配置。",
+        },
+        500
+      );
+    }
+
+    const stored =
+      await env.AFTERAIN_SITE.get(
+        MOMENTS_KEY,
+        "json"
+      );
+
+    return json({
+      moments: Array.isArray(stored)
+        ? stored
+        : [],
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Public moments API error:",
+      error
+    );
+
+    return json(
+      {
+        error: "读取动态失败。",
+      },
+      500
+    );
   }
 }
 
