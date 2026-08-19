@@ -919,7 +919,7 @@ input:focus{
   }
 
   .sidebar::after{
-    content:"MENU";
+    content:"菜单";
 
     position:absolute;
 
