@@ -1,12 +1,26 @@
 /*
-  Afterain 网站配置
-  1. 把头像放到 public/assets/avatar.jpg，并把 avatarUrl 改成 "/assets/avatar.jpg"
-  2. R2 图片：给 R2 绑定一个公开自定义域名，例如 https://img.example.com
-  3. 在 moments 中填入图片 URL、日期、标题和说明
-  4. status 可直接修改为你现在的现实状态
+  Afterain 网站配置（已扩展）
 */
 window.SITE_CONFIG = {
   avatarUrl: "/assets/avatar-placeholder.svg",
+
+  // Profile for homepage module
+  profile: {
+    name: "Afterain",
+    title: "个人空间 / Builder",
+    bio: "一个正在慢慢构建自己世界的人。这里记录一些关于我、我的生活和想法。",
+    location: "Somewhere",
+    email: ""
+  },
+
+  // About text for the About module
+  about: "这是我的个人空间。比起社交平台，我更想让这里保持一点安静、自由和真实。这里记录一些我正在做的事、想法与片段。",
+
+  // Social links to render in the Social module
+  socials: [
+    { name: "GitHub", url: "https://github.com/Aftera1n" }
+    // 可按需加入更多链接，例如：{ name: "Twitter", url: "https://twitter.com/..." }
+  ],
 
   // 匿名信后端地址。部署同一个 Worker 时保持 "/api/letter" 即可。
   letterApi: "/api/letter",
@@ -22,7 +36,7 @@ window.SITE_CONFIG = {
       date: "2026-08-19",
       title: "新的个人空间",
       description: "从今天开始，把一些值得留下的东西放在这里。",
-      image: "" // 例如：https://img.example.com/2026/08/19/site.jpg
+      image: ""
     },
     {
       date: "2026-08-01",
