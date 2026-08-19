@@ -72,17 +72,14 @@ function showPage(id) {
 /* =====================================================
    Mobile Menu
    保持原有 HTML / CSS / 样式
+   不增加菜单按钮
 ===================================================== */
+
 let menuOpen = false;
 
 function isMobile() {
   return window.innerWidth <= 800;
 }
-
-
-/* -----------------------------------------------------
-   Open
------------------------------------------------------ */
 
 function openMobileMenu() {
   if (!nav || !isMobile()) return;
@@ -95,18 +92,13 @@ function openMobileMenu() {
   nav.style.padding = "5px 0 2px";
 }
 
-
-/* -----------------------------------------------------
-   Close
------------------------------------------------------ */
-
 function closeMobileMenu() {
   if (!nav) return;
 
   menuOpen = false;
 
   if (isMobile()) {
-    nav.style.maxHeight = "0";
+    nav.style.maxHeight = "0px";
     nav.style.opacity = "0";
     nav.style.pointerEvents = "none";
     nav.style.padding = "0";
@@ -118,13 +110,8 @@ function closeMobileMenu() {
   }
 }
 
-
-/* -----------------------------------------------------
-   Toggle
------------------------------------------------------ */
-
 function toggleMobileMenu() {
-  if (!isMobile()) return;
+  if (!isMobile() || !nav) return;
 
   if (menuOpen) {
     closeMobileMenu();
@@ -135,52 +122,38 @@ function toggleMobileMenu() {
 
 
 /* =====================================================
-   Mobile Header Click
+   Mobile Menu Trigger
+   点击原来的顶部区域即可打开
+   不增加任何按钮
 ===================================================== */
-
-/*
- * 不新增按钮。
- *
- * 手机端原本的顶部区域就是 sidebar。
- * CSS 的"菜单"文字是 ::after，
- * 它本身 pointer-events:none，
- * 因此不能直接给"菜单"文字绑定事件。
- *
- * 所以监听 sidebar 的点击：
- *
- *   点击顶部区域 → 打开/关闭
- *   点击导航按钮 → 不触发这里
- */
 
 if (sidebar) {
 
-  sidebar.addEventListener("click", (event) => {
+  sidebar.addEventListener(
+    "pointerup",
+    (event) => {
 
-    if (!isMobile()) {
-      return;
+      if (!isMobile()) return;
+
+      /*
+       * 如果点击的是导航项目，
+       * 不要再次切换菜单。
+       */
+      const navItem =
+        event.target.closest &&
+        event.target.closest(".nav-item");
+
+      if (navItem) {
+        return;
+      }
+
+      /*
+       * 点击 sidebar 顶部区域：
+       * 打开 / 关闭菜单
+       */
+      toggleMobileMenu();
     }
-
-    /*
-     * 如果点击的是导航按钮，
-     * 不要在这里再次切换菜单。
-     */
-    if (
-      event.target.closest &&
-      event.target.closest(".nav-item")
-    ) {
-      return;
-    }
-
-    /*
-     * 如果菜单已经展开，
-     * 点击导航之外的 sidebar 区域就关闭。
-     *
-     * 如果菜单关闭，
-     * 点击顶部区域就打开。
-     */
-    toggleMobileMenu();
-
-  });
+  );
 
 }
 
@@ -201,6 +174,9 @@ navs.forEach((item) => {
       showPage(page);
     }
 
+    /*
+     * 手机端切换页面后自动关闭菜单
+     */
     if (isMobile()) {
       closeMobileMenu();
     }
@@ -214,24 +190,22 @@ navs.forEach((item) => {
    Click Outside
 ===================================================== */
 
-document.addEventListener("click", (event) => {
+document.addEventListener(
+  "pointerup",
+  (event) => {
 
-  if (!isMobile()) {
-    return;
+    if (!isMobile()) return;
+    if (!menuOpen) return;
+
+    if (
+      sidebar &&
+      !sidebar.contains(event.target)
+    ) {
+      closeMobileMenu();
+    }
+
   }
-
-  if (!menuOpen) {
-    return;
-  }
-
-  if (
-    sidebar &&
-    !sidebar.contains(event.target)
-  ) {
-    closeMobileMenu();
-  }
-
-});
+);
 
 
 /* =====================================================
@@ -240,7 +214,13 @@ document.addEventListener("click", (event) => {
 
 window.addEventListener("resize", () => {
 
-  if (!isMobile()) {
+  if (isMobile()) {
+
+    if (!menuOpen) {
+      closeMobileMenu();
+    }
+
+  } else {
 
     menuOpen = false;
 
@@ -251,14 +231,9 @@ window.addEventListener("resize", () => {
       nav.style.padding = "";
     }
 
-  } else if (!menuOpen) {
-
-    closeMobileMenu();
-
   }
 
 });
-
 
 /* =====================================================
    Initial Page
