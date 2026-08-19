@@ -36,7 +36,6 @@ if (avatar) {
 
 const navs = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
-
 const sidebar = document.querySelector(".sidebar");
 const brand = document.querySelector(".brand");
 const nav = sidebar
@@ -72,17 +71,18 @@ function showPage(id) {
 
 /* =====================================================
    Mobile Menu
+   保持原有 HTML / CSS / 样式
 ===================================================== */
-
-const sidebar = document.querySelector(".sidebar");
-const brand = document.querySelector(".brand");
-const nav = sidebar ? sidebar.querySelector("nav") : null;
-
 let menuOpen = false;
 
 function isMobile() {
   return window.innerWidth <= 800;
 }
+
+
+/* -----------------------------------------------------
+   Open
+----------------------------------------------------- */
 
 function openMobileMenu() {
   if (!nav || !isMobile()) return;
@@ -94,6 +94,11 @@ function openMobileMenu() {
   nav.style.pointerEvents = "auto";
   nav.style.padding = "5px 0 2px";
 }
+
+
+/* -----------------------------------------------------
+   Close
+----------------------------------------------------- */
 
 function closeMobileMenu() {
   if (!nav) return;
@@ -113,6 +118,11 @@ function closeMobileMenu() {
   }
 }
 
+
+/* -----------------------------------------------------
+   Toggle
+----------------------------------------------------- */
+
 function toggleMobileMenu() {
   if (!isMobile()) return;
 
@@ -124,22 +134,50 @@ function toggleMobileMenu() {
 }
 
 
-/* -----------------------------------------------------
-   Brand
-   点击原来的 Afterain 品牌区域打开菜单
------------------------------------------------------ */
+/* =====================================================
+   Mobile Header Click
+===================================================== */
 
-if (brand && nav) {
+/*
+ * 不新增按钮。
+ *
+ * 手机端原本的顶部区域就是 sidebar。
+ * CSS 的"菜单"文字是 ::after，
+ * 它本身 pointer-events:none，
+ * 因此不能直接给"菜单"文字绑定事件。
+ *
+ * 所以监听 sidebar 的点击：
+ *
+ *   点击顶部区域 → 打开/关闭
+ *   点击导航按钮 → 不触发这里
+ */
 
-  brand.style.cursor = "pointer";
+if (sidebar) {
 
-  brand.addEventListener("click", function (event) {
+  sidebar.addEventListener("click", (event) => {
 
-    if (!isMobile()) return;
+    if (!isMobile()) {
+      return;
+    }
 
-    event.preventDefault();
-    event.stopPropagation();
+    /*
+     * 如果点击的是导航按钮，
+     * 不要在这里再次切换菜单。
+     */
+    if (
+      event.target.closest &&
+      event.target.closest(".nav-item")
+    ) {
+      return;
+    }
 
+    /*
+     * 如果菜单已经展开，
+     * 点击导航之外的 sidebar 区域就关闭。
+     *
+     * 如果菜单关闭，
+     * 点击顶部区域就打开。
+     */
     toggleMobileMenu();
 
   });
@@ -147,17 +185,21 @@ if (brand && nav) {
 }
 
 
-/* -----------------------------------------------------
+/* =====================================================
    Navigation
------------------------------------------------------ */
+===================================================== */
 
-navs.forEach(function (item) {
+navs.forEach((item) => {
 
-  item.addEventListener("click", function (event) {
+  item.addEventListener("click", (event) => {
 
     event.stopPropagation();
 
-    showPage(item.dataset.page);
+    const page = item.dataset.page;
+
+    if (page) {
+      showPage(page);
+    }
 
     if (isMobile()) {
       closeMobileMenu();
@@ -168,15 +210,19 @@ navs.forEach(function (item) {
 });
 
 
-/* -----------------------------------------------------
-   点击外部关闭
------------------------------------------------------ */
+/* =====================================================
+   Click Outside
+===================================================== */
 
-document.addEventListener("click", function (event) {
+document.addEventListener("click", (event) => {
 
-  if (!isMobile()) return;
+  if (!isMobile()) {
+    return;
+  }
 
-  if (!menuOpen) return;
+  if (!menuOpen) {
+    return;
+  }
 
   if (
     sidebar &&
@@ -188,11 +234,11 @@ document.addEventListener("click", function (event) {
 });
 
 
-/* -----------------------------------------------------
-   屏幕尺寸变化
------------------------------------------------------ */
+/* =====================================================
+   Resize
+===================================================== */
 
-window.addEventListener("resize", function () {
+window.addEventListener("resize", () => {
 
   if (!isMobile()) {
 
@@ -211,54 +257,6 @@ window.addEventListener("resize", function () {
 
   }
 
-});
-
-
-/* =====================================================
-   Click Outside
-===================================================== */
-
-document.addEventListener("click", (event) => {
-  if (!isMobile()) {
-    return;
-  }
-
-  if (!menuOpen) {
-    return;
-  }
-
-  if (
-    sidebar &&
-    !sidebar.contains(event.target)
-  ) {
-    closeMobileMenu();
-  }
-});
-
-
-/* =====================================================
-   Resize
-===================================================== */
-
-window.addEventListener("resize", () => {
-  if (!isMobile()) {
-    // 回到桌面端
-    menuOpen = false;
-
-    if (nav) {
-      nav.style.maxHeight = "";
-      nav.style.opacity = "";
-      nav.style.pointerEvents = "";
-      nav.style.padding = "";
-    }
-
-    return;
-  }
-
-  // 手机端保持当前菜单状态
-  if (!menuOpen) {
-    closeMobileMenu();
-  }
 });
 
 
