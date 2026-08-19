@@ -16,10 +16,10 @@
     <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-nav">☰</button>
 
     <nav id="main-nav">
-      <button class="nav-item active" data-page="home"><span>⌂</span>介绍</button>
-      <button class="nav-item" data-page="moments"><span>◷</span>照片动态</button>
-      <button class="nav-item" data-page="letter"><span>✉</span>匿名信</button>
-      <button class="nav-item" data-page="status"><span>◉</span>此时状态</button>
+      <a class="nav-item" href="/">介绍</a>
+      <a class="nav-item" href="/moments.html">照片动态</a>
+      <a class="nav-item" href="/letter.html">匿名信</a>
+      <a class="nav-item" href="/status.html">此时状态</a>
     </nav>
     <div class="side-bottom"><span class="dot"></span> online · somewhere in the world</div>
   </aside>
@@ -63,30 +63,6 @@
 
     </section>
 
-    <section id="moments" class="page">
-      <div class="page-head"><p class="eyebrow">MOMENTS</p><h2>照片动态</h2><p>把时间里的小片段，排成一条属于自己的时间线。</p></div>
-      <div id="timeline" class="timeline"></div>
-    </section>
-
-    <section id="letter" class="page">
-      <div class="page-head"><p class="eyebrow">ANONYMOUS LETTER</p><h2>匿名信</h2><p>想对我说点什么？不用留下名字。</p></div>
-      <form id="letter-form" class="glass letter-form">
-        <label>你的留言<textarea id="message" maxlength="2000" required placeholder="写下你想说的话……"></textarea></label>
-        <div class="form-row"><label>回复邮箱 <span>（可选）</span><input id="replyTo" type="email" maxlength="120" placeholder="如果希望收到回复，可以留下邮箱"></label></div>
-        <div class="hp" aria-hidden="true"><input id="website" tabindex="-1" autocomplete="off"></div>
-        <button class="primary" type="submit">发送匿名信 <span>→</span></button>
-        <p id="form-result" class="form-result"></p>
-      </form>
-    </section>
-
-    <section id="status" class="page">
-      <div class="page-head"><p class="eyebrow">RIGHT NOW</p><h2>此时状态</h2><p>现实里的我，现在正在做什么。</p></div>
-      <div class="status-card glass">
-        <div class="status-ring"><span></span></div>
-        <div><p class="eyebrow">CURRENT STATUS</p><h3 id="status-title">正在加载……</h3><p id="status-detail" class="muted">稍等一下。</p><time id="status-time"></time></div>
-      </div>
-      <div class="glass status-note"><span>✦</span><p>状态可以通过修改 <code>src/config.js</code> 随时更新，也可以接入你自己的 API。</p></div>
-    </section>
   </main>
   <script src="/config.js"></script>
   <script src="/app.js"></script>
