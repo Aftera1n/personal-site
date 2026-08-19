@@ -16,6 +16,71 @@ window.SITE_CONFIG = {
     detail: "此刻正在更新这个网站，也在思考下一步要做什么。",
     updatedAt: "2026-08-19 14:00"
   },
+  
+  
+  async function loadRemoteStatus() {
+
+  try {
+
+    const response =
+      await fetch("/api/status", {
+        cache: "no-store"
+      });
+
+    if (!response.ok) {
+      throw new Error("状态读取失败");
+    }
+
+    const data =
+      await response.json();
+
+    const status =
+      data.status;
+
+    if (!status) {
+      return;
+    }
+
+    const title =
+      document.getElementById(
+        "status-title"
+      );
+
+    const detail =
+      document.getElementById(
+        "status-detail"
+      );
+
+    const time =
+      document.getElementById(
+        "status-time"
+      );
+
+    if (title) {
+      title.textContent =
+        status.title || "";
+    }
+
+    if (detail) {
+      detail.textContent =
+        status.detail || "";
+    }
+
+    if (time) {
+      time.textContent =
+        status.updatedAt || "";
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load remote status:",
+      error
+    );
+
+  }
+
+},
 
   moments: [
     {
@@ -32,3 +97,6 @@ window.SITE_CONFIG = {
     }
   ]
 };
+
+
+

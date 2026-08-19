@@ -1871,6 +1871,70 @@ ${
         404
       );
     }
+    
+    
+    // =====================================================
+// 公开网站状态
+// =====================================================
+
+if (url.pathname === "/api/status") {
+
+  if (request.method !== "GET") {
+    return json(
+      {
+        error: "Method Not Allowed",
+      },
+      405
+    );
+  }
+
+  try {
+
+    if (!env.AFTERAIN_SITE) {
+      console.error(
+        "AFTERAIN_SITE KV binding missing"
+      );
+
+      return json(
+        {
+          error: "网站内容服务未配置。",
+        },
+        500
+      );
+    }
+
+    const stored =
+      await env.AFTERAIN_SITE.get(
+        "status",
+        "json"
+      );
+
+    if (!stored) {
+      return json({
+        status: null,
+      });
+    }
+
+    return json({
+      status: stored,
+    });
+
+  } catch (e) {
+
+    console.error(
+      "Status API error:",
+      e
+    );
+
+    return json(
+      {
+        error: "读取状态失败。",
+      },
+      500
+    );
+
+  }
+}
 
     // =====================================================
     // Static assets
