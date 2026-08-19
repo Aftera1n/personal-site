@@ -20,5 +20,5 @@ id = "58fd3397a30f4929a4c760b454c09a4e"
 
 # 网站内容
 [[kv_namespaces]]
-binding = "SITE_KV"
+binding = "AFTERAIN_SITE"
 id = "92fd195d8c064c56851659ee6414404f"
