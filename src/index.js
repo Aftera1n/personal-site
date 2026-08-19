@@ -261,16 +261,16 @@ if (!resendResponse.ok) {
         });
 
       } catch (e) {
-        console.error(e);
+  console.error(e);
 
-        return json(
-          {
-            error:
-              "发送失败，请稍后再试。"
-          },
-          500
-        );
-      }
+  return json(
+    {
+      error: "Worker 执行失败",
+      detail: String(e),
+    },
+    500
+  );
+}
     }
 
     return env.ASSETS.fetch(request);
