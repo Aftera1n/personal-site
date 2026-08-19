@@ -1269,4 +1269,35 @@ input:focus{
   .chips span{
     padding:6px 8px;
   }
+  
+  
+  
+  .social-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:18px;
+}
+
+.social-links a{
+  color:#5aaef5;
+  text-decoration:none;
+
+  padding:7px 11px;
+
+  border:1px solid rgba(90,174,245,.2);
+  border-radius:999px;
+
+  background:rgba(90,174,245,.06);
+
+  font-size:12px;
+
+  transition:.2s;
+}
+
+.social-links a:hover{
+  background:rgba(90,174,245,.12);
+  border-color:rgba(90,174,245,.4);
+  transform:translateY(-1px);
+}
 }

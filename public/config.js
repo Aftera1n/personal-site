@@ -6,7 +6,7 @@
   4. status 可直接修改为你现在的现实状态
 */
 window.SITE_CONFIG = {
-  avatarUrl: "/assets/avatar-placeholder.svg",
+  avatarUrl: "/assets/avatar-placeholder.jpeg",
 
   // 匿名信后端地址。部署同一个 Worker 时保持 "/api/letter" 即可。
   letterApi: "/api/letter",
