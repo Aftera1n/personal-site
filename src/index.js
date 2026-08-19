@@ -1936,9 +1936,9 @@ if (url.pathname === "/api/status") {
 }
 
 
-// -----------------------------------------------
-// Public Moments
-// -----------------------------------------------
+// =====================================================
+// 公开网站动态
+// =====================================================
 
 if (url.pathname === "/api/moments") {
 
@@ -1952,7 +1952,6 @@ if (url.pathname === "/api/moments") {
   }
 
   try {
-
     if (!env.AFTERAIN_SITE) {
       console.error(
         "AFTERAIN_SITE KV binding missing"
@@ -1966,22 +1965,22 @@ if (url.pathname === "/api/moments") {
       );
     }
 
-    const stored =
+    const moments =
       await env.AFTERAIN_SITE.get(
         MOMENTS_KEY,
         "json"
       );
 
     return json({
-      moments: Array.isArray(stored)
-        ? stored
+      moments: Array.isArray(moments)
+        ? moments
         : [],
     });
 
   } catch (error) {
 
     console.error(
-      "Public moments API error:",
+      "Moments API error:",
       error
     );
 
@@ -1993,6 +1992,8 @@ if (url.pathname === "/api/moments") {
     );
   }
 }
+
+
 
     // =====================================================
     // Static assets
