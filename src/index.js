@@ -218,20 +218,17 @@ ${
           await resendResponse.json();
 
         // Resend 失败
-        if (!resendResponse.ok) {
-          console.error(
-            "Resend error:",
-            resendData
-          );
+if (!resendResponse.ok) {
+  console.error("Resend error:", resendData);
 
-          return json(
-            {
-              error:
-                "邮件发送失败，请稍后再试。"
-            },
-            500
-          );
-        }
+  return json(
+    {
+      error: "Resend 发送失败",
+      detail: resendData,
+    },
+    500
+  );
+}
 
         // ==============================
         // 只有邮件发送成功后才计数
