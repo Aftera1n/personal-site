@@ -108,3 +108,29 @@ form.addEventListener("submit",async e=>{
 });
 function escapeHtml(v){return String(v).replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 function escapeAttr(v){return escapeHtml(v)}
+
+// render profile / about / socials from SITE_CONFIG
+const siteCfg = window.SITE_CONFIG || {};
+if(siteCfg.profile){
+  const p = siteCfg.profile;
+  const pa = document.getElementById('profile-avatar');
+  if(pa) pa.src = p.avatarUrl || siteCfg.avatarUrl || '/assets/avatar-placeholder.svg';
+  const pn = document.getElementById('profile-name');
+  if(pn) pn.textContent = p.name || '';
+  const pt = document.getElementById('profile-title');
+  if(pt) pt.textContent = p.title || '';
+  const pb = document.getElementById('profile-bio');
+  if(pb) pb.textContent = p.bio || '';
+}
+if(siteCfg.about){
+  const aboutEl = document.getElementById('about-text');
+  if(aboutEl) aboutEl.textContent = siteCfg.about;
+}
+const socialsWrap = document.getElementById('social-links');
+if(socialsWrap && Array.isArray(siteCfg.socials)){
+  socialsWrap.innerHTML = siteCfg.socials.map(s => {
+    const name = escapeHtml(s.name || s.url);
+    const href = escapeAttr(s.url || '#');
+    return `<a class="social-link" href="${href}" target="_blank" rel="noopener noreferrer">${name}</a>`;
+  }).join('');
+}
